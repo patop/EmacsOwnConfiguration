@@ -1,0 +1,490 @@
+#+TITLE: Archivo de configuracion de emacs
+#+AUTHOR: Duck 50
+
+* Cofiguraciones
+
+
+* Intento arreglar la configuracion del idioma
+#+BEGIN_SRC emacs-lisp
+;; Set language environment to UTF-8
+(set-language-environment "UTF-8")
+(set-default-coding-systems 'utf-8)
+#+END_SRC
+
+
+** Teclas
+#+BEGIN_SRC emacs-lisp 
+  ;; Atajo para guardar
+  (global-set-key (kbd "C-s") 'save-buffer)
+
+  ;; Atajo para deshacer
+  (global-set-key (kbd "C-z") 'undo)
+
+  ;; Atajo para rehacer
+  (global-set-key (kbd "C-S-z") 'redo)
+
+  ;; Atajo para buscar
+  (global-set-key (kbd "<f3>") 'isearch-forward)
+
+  ;; Atajo para buscar y reemplazar
+  (global-set-key (kbd "C-r") 'query-replace)
+
+  ;; Atajo para seleccionar toda la buffer
+  (global-set-key (kbd "C-h") 'mark-whole-buffer)
+
+  ;; Atajo para abrir un nuevo buffer
+  (global-set-key (kbd "C-n") 'new-buffer)
+
+  ;; Atajo para cerrar Emacs
+  (global-set-key (kbd "C-x C-c") 'save-buffers-kill-terminal)
+
+
+  ;; Atajo para ingresar a ibuffer
+  (global-set-key (kbd "C-x C-b") 'ibuffer)
+
+
+#+END_SRC
+
+** Inicialización de los repositorios
+
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+
+ (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                          ("elpa" . "https://elpa.gnu.org/packages/")
+			  ("org" . "https://orgmode.org/elpa/")
+ ))
+
+
+ (package-initialize)
+
+ ; Fetch the list of packages available 
+ (unless package-archive-contents (package-refresh-contents))
+
+ ; Install use-package
+ (setq package-list '(use-package))
+ (dolist (package package-list)
+ (unless (package-installed-p package) (package-install package)))
+#+END_SRC
+
+** Configuracion básica
+#+BEGIN_SRC emacs-lisp
+
+
+	(when (version<= "9.2" (org-version))
+	(require 'org-tempo))
+
+
+	;; Automatically add ending brackets and braces
+  (electric-pair-mode 1)
+
+  ;; Make sure tab-width is 4 and not 8
+  (setq-default tab-width 4)
+
+  ;; Highlight matching brackets and braces
+  (show-paren-mode 1) 
+
+
+	;;Desactiva el ruido cuando no se encuntra un modulo y se llega alfinal de la linea, etc
+	  (setq ring-bell-function 'ignore)
+
+	  ;; Cargar el paquete recentf
+	  (require 'recentf)
+
+	  ;; Habilitar el modo recentf, que mantiene un historial de archivos recientes
+	  (recentf-mode 1)
+
+  ;; Función para abrir un archivo reciente
+(defun open-recent ()
+  "Abre un archivo reciente"
+  (interactive)
+  (recentf-open-files))
+
+
+
+	  ;; Configurar la cantidad de archivos a mostrar en la lista de recientes
+		(setq recentf-max-menu-items 5)  ;; Mostrar los 5 archivos más recientes
+
+	  ;; Asigna la función a una combinación de teclas
+	  (global-set-key (kbd "C-c r") 'open-recent)
+
+#+END_SRC 
+
+* LOOK y Otros
+
+#+BEGIN_SRC emacs-lisp
+    ;; Establece una fuente personalizada (opcional)
+    (set-frame-font "Fira Code Retina-14" nil t)
+
+    ;; Configura el cursor (opcional)
+    (setq-default cursor-type 'bar)
+
+    (use-package doom-themes
+      :ensure t
+      :config
+      (load-theme 'doom-one t))
+
+    (set-face-attribute 'default nil
+			:font "Fira Code Retina"
+			:height 120)
+
+    (set-face-attribute 'mode-line nil
+			:box nil) ;; Eliminar la caja alrededor de la barra de modo
+    (setq inverse-video nil) ;; Dar vuekta numero de lineas
+
+    ;;Tema y Fuente
+
+    (tool-bar-mode -1)  ;; Ocultar la barra de herramientas
+    (menu-bar-mode -1)  ;; Ocultar la barra de menú
+    (scroll-bar-mode -1) ;; Ocultar la barra de desplazamiento
+
+    ;;Cambios de Color y Estilo
+
+    (set-cursor-color "#ffffff")    ;; Cambiar el color del cursor a blanco
+    (set-background-color "#282c34") ;; Cambiar el color de fondo
+    (set-foreground-color "#abb2bf") ;; Cambiar el color del texto
+
+    ;;Márgenes y Espaciado
+    (setq-default left-margin-width 1 right-margin-width 1) ; Ajustar márgenes
+    (setq-default line-spacing 0.1)                        ; Espaciado entre líneas
+
+    ;;Modificar el Cursor
+    (setq-default cursor-type 'bar)  ;; Cambiar el tipo de cursor a una barra
+
+    ;;Resaltar la Línea Actual
+    (global-hl-line-mode +1) ;; Resaltar la línea actual
+
+    ;;Configuración de Números de Línea
+    (global-display-line-numbers-mode)
+    (setq display-line-numbers-type 'relative) ;; Muestra números relativos
+
+    ;;Configuración de Modeline
+    (use-package doom-modeline
+      :ensure t
+      :init (doom-modeline-mode 1))
+
+    ;; Instala el paquete page-break-lines si aún no está instalado
+    (unless (package-installed-p 'page-break-lines)
+      (package-refresh-contents)
+      (package-install 'page-break-lines))
+
+    ;; Configuración de la página de inicio minimalista
+    (setq inhibit-startup-screen t)  ; Deshabilita la pantalla de inicio estándar
+
+    ;; Configura el estilo de línea de separación
+    (require 'page-break-lines)
+    (global-page-break-lines-mode)
+
+    ;; Mensaje de bienvenida con una cita de Charles Bukowski
+    (setq initial-scratch-message
+	  (concat
+	   "               \n"
+	   "  \n\n\n\n\n\n"
+	   "\n\t\t\t\t\t""\"La vida es como un caballo jodido. A veces te subes a él "
+		  "y a veces te arrastra por la mierda.\"\n\n"
+		  "\t\t\t\t\t\t\t\t\t\t— Charles Bukowski\n\n"
+		  "Archivos Recientes:\n"  ;; Título para la lista de archivos recientes
+		  "--------------------\n"
+		  (mapconcat 'identity recentf-list "\n")  ;; Concatenar la lista de archivos recientes
+		  "\n\n"))
+
+
+    ;; Iniciar Emacs en pantalla completa
+    (add-to-list 'initial-frame-alist '(fullscreen . maximized))
+
+
+#+END_SRC
+** Proyectile
+
+#+BEGIN_SRC emacs-lisp
+  (use-package projectile 
+:ensure t
+:init (projectile-mode +1)
+:config 
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+)   
+#+END_SRC
+
+** HELM
+#+BEGIN_SRC emacs-lisp
+
+  (use-package helm
+:ensure t
+:init 
+(helm-mode 1)
+(progn (setq helm-buffers-fuzzy-matching t))
+:bind
+(("C-c h" . helm-command-prefix))
+(("M-x" . helm-M-x))
+(("C-x C-f" . helm-find-files))
+(("C-x b" . helm-buffers-list))
+(("C-c b" . helm-bookmarks))
+(("C-c f" . helm-recentf))   ;; Add new key to recentf
+(("C-c g" . helm-grep-do-git-grep)))  ;; Search using grep in a git project
+#+END_SRC
+
+** HELMDESCRBS
+#+BEGIN_SRC emacs-lisp
+  (use-package helm-descbinds
+:ensure t
+:bind ("C-9" . helm-descbinds))
+#+END_SRC
+
+* Language Server Protocol (LSP)
+**  Instala y configura corfu
+#+BEGIN_SRC emacs-lisp
+  (use-package corfu
+  :ensure t
+  :custom
+  (corfu-cycle t)
+  (corfu-auto t)
+  (corfu-auto-prefix 2)
+  (corfu-auto-delay 0.0)
+  (corfu-quit-at-bundary 'separator)
+  (corfu-echo-documentation 0.1)
+  (corfu-preview-current 'insert)
+  (corfu-preselect-first t)
+  :init
+  (global-corfu-mode)
+  (corfu-history-mode)
+  :config
+  ;; Configuración adicional si es necesaria
+  )
+
+;; Establece la posición de la ventana de selección de Corfu
+(setq corfu-cycle t)
+
+;; Establece la ubicación de la ventana de selección de Corfu
+(setq corfu-echo-documentation t)
+
+;; Teclas para seleccionar candidatos
+(define-key corfu-map (kbd "<tab>") 'corfu-next)
+(define-key corfu-map (kbd "<backtab>") 'corfu-previous)
+
+#+END_SRC
+
+** Yasnippet
+
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet :config (yas-global-mode))
+(use-package yasnippet-snippets :ensure t)
+#+END_SRC
+
+** FlyCheck
+#+BEGIN_SRC emacs-lisp
+;;  (use-package flycheck :ensure t :init (global-flycheck-mode))
+#+END_SRC
+
+** Dap Mode
+#+BEGIN_SRC emacs-lisp
+  (use-package dap-mode
+  :ensure t
+  :after (lsp-mode)
+  :functions dap-hydra/nil
+  :config
+  :bind (:map lsp-mode-map
+         ("<f5>" . dap-debug)
+         ("M-<f5>" . dap-hydra))
+  :hook ((dap-mode . dap-ui-mode)
+    (dap-session-created . (lambda (&_rest) (dap-hydra)))
+    (dap-terminated . (lambda (&_rest) (dap-hydra/nil)))))
+
+#+END_SRC
+
+** Treemacs
+
+#+BEGIN_SRC emacs-lisp
+    (use-package treemacs
+    :ensure t
+    :bind ("<f8>" . treemacs)
+    :commands (treemacs)
+    :after (lsp-mode))
+
+    (use-package lsp-treemacs
+    :after (lsp-mode treemacs)
+    :ensure t
+    :commands lsp-treemacs-errors-list
+    :bind (:map lsp-mode-map
+	   ("M-9" . lsp-treemacs-errors-list)))
+
+#+END_SRC
+
+** LSP UI
+
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-ui
+:ensure t
+:after (lsp-mode)
+:bind (:map lsp-ui-mode-map
+         ([remap xref-find-definitions] . lsp-ui-peek-find-definitions)
+         ([remap xref-find-references] . lsp-ui-peek-find-references))
+:init (setq lsp-ui-doc-delay 1.5
+      lsp-ui-doc-position 'bottom
+	  lsp-ui-doc-max-width 100
+))
+#+END_SRC
+
+
+** Company si pasa
+#+BEGIN_SRC emacs-lisp
+  (use-package company :ensure t)
+#+END_SRC
+
+** SERVIDOR LSP
+#+BEGIN_SRC emacs-lisp
+(use-package lsp-mode
+:ensure t
+:hook (
+   (lsp-mode . lsp-enable-which-key-integration)
+   
+)
+:init (setq 
+    lsp-keymap-prefix "C-c l"              ; this is for which-key integration documentation, need to use lsp-mode-map
+    lsp-enable-file-watchers nil
+    read-process-output-max (* 1024 1024)  ; 1 mb
+    lsp-completion-provider :capf
+    lsp-idle-delay 0.500
+)
+:config 
+    (setq lsp-intelephense-multi-root nil) ; don't scan unnecessary projects
+    (with-eval-after-load 'lsp-intelephense
+    (setf (lsp--client-multi-root (gethash 'iph lsp-clients)) nil))
+	(define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
+)
+
+#+END_SRC
+
+* PYTHON
+#+BEGIN_SRC emacs-lisp
+      ;; Configuración para usar Conda en Emacs
+    (when (memq window-system '(mac ns x))
+      (exec-path-from-shell-initialize))
+
+    ;; Establece la ruta del ejecutable de Python de Conda
+  (setq python-shell-interpreter "C:/Users/liuka/miniconda3/envs/spyder-env/python.exe")
+  ;; Establece la ruta de activate script de Conda
+  (setq python-shell-args '("--init-file" "c:/Users/liuka/miniconda3/Scripts/activate" "C:/Users/liuka/miniconda3/envs/spyder-env/python.exe"))
+  ;;configuracion de python
+  (setenv "PATH" (concat "C:/Users/liuka/miniconda3/envs/spyder-env/python.exe" (getenv "PATH")))
+  (setq exec-path (append '("C:/Users/liuka/miniconda3/envs/spyder-env/python.exe") exec-path))
+  ;; Establecer la ruta al intérprete de Python de Miniconda
+  (setq python-shell-interpreter "C:/Users/liuka/miniconda3/envs/spyder-env/python.exe")
+  ;; Agregar la ruta de los scripts de Miniconda al PATH de Emacs
+  (setq exec-path (append '("C:/Users/liuka/miniconda3/Scripts") exec-path))
+  ;; Configurar el shell interactivo de Python
+  (setq python-shell-interpreter-args "-i")
+
+  (defun run-python-file ()
+    "Ejecutar el archivo Python activo."
+    (interactive)
+    (let ((python-script (buffer-file-name)))
+      (shell-command (concat "python " python-script))))
+
+  ;; Asignar un atajo (por ejemplo, F5) para ejecutar el archivo Python
+  (global-set-key (kbd "<f6>") 'run-python-file)
+
+  ;;Configuración de pylsp
+(require 'lsp)
+(add-hook 'python-mode-hook #'lsp)
+#+END_SRC
+
+* C/C++
+
+#+BEGIN_SRC emacs-lisp
+  ;; Ajusta la ruta del binario de Cygwin
+(setq exec-path (append exec-path '("c:/cygwin64/bin")))
+
+;; Establece la shell para Cygwin
+;;  (setq shell-file-name "bash")
+;;  (setq explicit-shell-file-name shell-file-name)
+;;  (setq explicit-bash.exe-args '("--noediting" "--login" "-i"))
+
+#+END_SRC
+
+* Una pruba loca que voy a hacer
+#+BEGIN_SRC emacs-lisp
+  (defun ejecutar-programa-en-terminal ()
+	"Ejecuta el programa en la terminal correspondiente según el modo del buffer."
+	(interactive)
+	(let* ((file-name (or buffer-file-name (dired-get-file-for-visit)))
+		   (file-extension (file-name-extension file-name))
+		   (compiler (cond ((eq major-mode 'c-mode) "gcc")
+						   ((eq major-mode 'c++-mode) "g++")
+						   (t nil))))
+	  (cond
+	   ((eq major-mode 'python-mode)
+		(message "Ejecutando en la terminal de Windows...")
+		;;(setq shell-file-name "cmd.exe")
+		(setq shell-file-name "powershell.exe")
+		(setq explicit-shell-file-name shell-file-name)
+		(setq explicit-powershell.exe-args '("-NoProfile" "-ExecutionPolicy" "Bypass"))
+		(shell-command (concat "python " file-name)))
+	   (compiler
+		(message "Ejecutando en la terminal de Cygwin...")
+		(setq shell-file-name "bash")
+		(setq explicit-shell-file-name shell-file-name)
+		;;(setq explicit-bash.exe-args '( "--login" "-i"))
+		(shell-command-on-region
+		 (point-min) (point-max) ; Ejecutar en todo el buffer
+
+		 (format "%s -o %s %s && ./%s"
+				 compiler
+				 (file-name-sans-extension file-name)
+				 file-name
+				 (file-name-sans-extension (file-name-nondirectory file-name))))
+		)
+	   (t
+		(message "Este buffer no está asociado con un modo de ejecución conocido.")))))
+
+  ;; Asocia una combinación de teclas para la función
+  (global-set-key (kbd "<f12>") 'ejecutar-programa-en-terminal)
+
+#+end_src
+
+* SQL
+
+** Postgress
+#+BEGIN_SRC emacs-lisp
+  ;;(defun my-sql-connect ()
+  ;;"Connect to a SQL database."
+  ;;(interactive)
+  ;;(let ((sql-connection-alist
+;;		 '((pool-a (sql-product 'postgres)
+;;				   (sql-port 5432)
+;;				   (sql-server "localhost")
+;;				   (sql-user "root")
+;;				   (sql-password "")
+;;				   (sql-database "test")))))
+;;	(if (not (sql-find-sqli-buffer))
+;;		(call-interactively 'sql-connect)))
+;;  )
+
+;;  (global-set-key (kbd "<f7>") 'my-sql-connect)
+#+end_src
+
+** MySQL
+#+BEGIN_SRC emacs-lisp
+ #+END_SRC
+
+* R
+#+BEGIN_SRC emacs-lisp
+  (use-package ess
+  :ensure t
+  :config
+  ;; Configure other ESS settings if needed
+  )
+
+  (defcustom ess-startup-directory
+  nil
+  "Directory from which to load startup files.
+This directory should be in `load-path'.
+If nil, no directory is used; this makes ESS look for startup files
+in the standard directories (`ess-directory', `user-emacs-directory',
+`user-emacs-directory'/`lisp', `load-path'/`ess-lisp-directory')."
+  :group 'ess
+  :type '(choice (const :tag "None" nil) directory))
+
+
+  ;;Para ejecutar un script completo, puedes usar M-x ess-eval-buffer.
+
+#+END_SRC
